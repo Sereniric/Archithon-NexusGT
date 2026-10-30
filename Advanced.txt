@@ -1,0 +1,522 @@
+# PHASE 1 — PRIVACY INTELLIGENCE ENGINE
+## PrivacyLens Product Upgrade
+
+We have already completed the seven original implementation steps of PS01 and are building PrivacyLens into a professional Android privacy analysis product.
+
+This task implements Phase 1 of our product roadmap:
+
+1. Explainable Privacy Risk Assessment.
+2. Privacy Nutrition Label.
+
+The goal is to convert existing technical analysis results into understandable, evidence-backed privacy insights for both ordinary Android users and Android developers.
+
+IMPORTANT: This is an extension of the existing project, NOT a rewrite.
+
+---
+
+# 1. FIRST: UNDERSTAND THE EXISTING PROJECT
+
+Before writing code:
+
+- Read `PS01.md`.
+- Read the existing project instructions.
+- Inspect the complete existing folder structure.
+- Inspect all existing analyzer modules.
+- Inspect `permissions.json`.
+- Inspect the existing report generator.
+- Inspect the current tests.
+- Inspect the current Streamlit integration.
+
+Understand exactly what data each existing analyzer returns.
+
+Existing modules include:
+
+- `manifest_parser.py`
+- `permission_analyzer.py`
+- `policy_analyzer.py`
+- `purpose_analyzer.py`
+- `app_purpose_analyzer.py`
+- `report_generator.py`
+
+If APK extraction has already been implemented, preserve it.
+
+Do not assume return structures. Inspect the actual source code.
+
+Do not start modifying existing modules until you understand their interfaces.
+
+---
+
+# 2. FEATURE ONE: EXPLAINABLE PRIVACY RISK ASSESSMENT
+
+## Objective
+
+Create a deterministic risk assessment engine that evaluates the privacy implications of an application's declared permissions and existing analysis findings.
+
+The engine must explain WHY something deserves attention instead of simply producing a numerical score.
+
+Create:
+
+```text
+backend/
+└── analyzer/
+    └── risk_analyzer.py
+
+backend/
+└── knowledge_base/
+    └── risk_rules.json
+
+backend/
+└── tests/
+    └── test_risk_analyzer.py
+```
+
+## A. Assessment dimensions
+
+Evaluate three separate dimensions.
+
+### 1. Permission Exposure
+
+Assess the sensitivity of recognized declared permissions.
+
+Consider:
+- Access to location.
+- Camera access.
+- Microphone access.
+- Contacts access.
+- Call-related information.
+- SMS-related information.
+- Photos and media.
+- Storage.
+- Other sensitive capabilities already represented in the knowledge base.
+
+Use the existing permission knowledge base as the source of permission information.
+
+Do not invent permission classifications.
+
+Do not assume every declared permission is actively used.
+
+### 2. Application Purpose Alignment
+
+Use the existing `app_purpose_analyzer.py` output.
+
+Consider its existing classifications:
+
+- Potentially relevant.
+- Needs review / unclear.
+- No clear relationship identified.
+
+Use these classifications as evidence for review prioritization.
+
+Do not create new unsupported conclusions.
+
+### 3. Privacy Transparency
+
+Use the existing policy analysis and permission-policy comparison results.
+
+Consider:
+- Relevant policy coverage found.
+- No relevant policy statement found.
+- Unknown / cannot determine.
+- Missing privacy topics.
+
+Missing disclosure must be treated as a transparency gap, not proof of privacy violations.
+
+## B. Scoring model
+
+Implement a transparent, configurable scoring model.
+
+Use a 0–100 scale where higher values mean more findings require review.
+
+Important:
+- This is a review-priority score, NOT a probability of malicious behavior.
+- Every score must have a documented calculation.
+- Weights and rules must be stored in `risk_rules.json`.
+- Avoid arbitrary hardcoded scoring scattered across Python functions.
+- Keep scoring deterministic.
+- Use a documented approach to avoid double-counting the same permission across multiple findings.
+- Separate permission exposure, purpose alignment and transparency results.
+- Unknown permissions must remain unknown. Do not invent a risk value for them.
+- Missing information must not silently be treated as safe.
+- Do not let one missing privacy-policy statement automatically produce an extreme overall score.
+
+If the available evidence is insufficient, return an appropriate "Insufficient evidence" or "Limited assessment" status instead of pretending the score is reliable.
+
+## C. Risk assessment output
+
+Return a structured result containing:
+
+- Overall review-priority score, if calculable.
+- Assessment status.
+- Permission exposure assessment.
+- Purpose alignment assessment.
+- Transparency assessment.
+- Findings requiring attention.
+- Evidence supporting every finding.
+- Explanation of why each finding matters.
+- Scoring methodology and limitations.
+
+Each finding should contain, where applicable:
+
+- Finding title.
+- Related permission identifier.
+- Severity or review priority.
+- Explanation.
+- Evidence source.
+- Supporting policy excerpt, if applicable.
+- Reason for the assessment.
+
+Keep the exact permission identifiers.
+
+Never generate unsupported findings.
+
+## D. Recommendations
+
+Provide deterministic recommendations based on existing findings.
+
+Examples:
+- Review whether sensitive permissions are necessary for the stated application purpose.
+- Check whether location collection is adequately explained in the supplied privacy policy.
+- Investigate unfamiliar permissions before release.
+- Review permissions that have no clear relationship with the declared application purpose.
+
+Recommendations must be relevant to actual findings.
+
+Do not make generic recommendations unrelated to the analyzed application.
+
+---
+
+# 3. FEATURE TWO: PRIVACY NUTRITION LABEL
+
+## Objective
+
+Create a user-friendly summary of the application's declared permission capabilities.
+
+Normal users should be able to understand the privacy implications without knowing Android permission identifiers.
+
+Create:
+
+```text
+backend/
+└── analyzer/
+    └── nutrition_label.py
+
+backend/
+└── tests/
+    └── test_nutrition_label.py
+```
+
+## A. Permission categories
+
+Use the existing permission knowledge base to group recognized permissions into understandable categories.
+
+Suggested categories:
+
+1. Location.
+2. Camera and Microphone.
+3. Contacts and Personal Information.
+4. Phone and Communication.
+5. Photos, Media and Storage.
+6. Device Information.
+7. Network and Connectivity.
+8. Other Sensitive Capabilities.
+
+Inspect the actual knowledge base before mapping permissions.
+
+Only assign a permission to a category when the mapping is supported by its existing information.
+
+Unknown permissions must be shown in a separate category:
+
+"Unrecognized Permissions"
+
+Do not guess their purpose.
+
+## B. Nutrition label output
+
+Generate a structured label containing:
+
+- Application name, if provided.
+- Total declared permissions.
+- Number of recognized permissions.
+- Number of unknown permissions.
+- Categories detected.
+- Permissions belonging to each category.
+- Plain-language category explanations.
+- Relevant privacy-policy coverage, where available.
+
+Each category must indicate whether corresponding permissions were:
+
+- Declared in the manifest.
+- Not detected in the manifest.
+- Unknown / cannot determine.
+
+IMPORTANT:
+
+"Not detected" means the corresponding permission was not found in the analyzed manifest. It does NOT prove that the application cannot access the relevant information through other mechanisms.
+
+Do not describe declared permissions as proof that the app actually collects or transmits data.
+
+## C. Consumer and developer detail
+
+The nutrition label must support two levels of information:
+
+### Consumer view
+- Simple category names.
+- Understandable explanations.
+- Clear descriptions of what the application may be capable of accessing.
+- Easy-to-read status indicators.
+
+### Developer view
+- Exact Android permission identifiers.
+- Permission descriptions.
+- Protection levels, where available.
+- Technical details from the existing knowledge base.
+- Supporting analysis evidence.
+
+Do not duplicate the permission knowledge base.
+
+---
+
+# 4. INTEGRATION WITH EXISTING ANALYSIS
+
+Both new modules must consume the actual structured results from the existing analyzers.
+
+Expected flow:
+
+```text
+APK / AndroidManifest.xml
+          |
+          v
+   Manifest Parser
+          |
+          v
+ Permission Analyzer
+          |
+          +-------------------+
+          |                   |
+          v                   v
+   Policy Analyzer      App Purpose Analyzer
+          |                   |
+          v                   |
+ Permission-Policy Comparison |
+          |                   |
+          +---------+---------+
+                    |
+                    v
+             Risk Analyzer
+                    |
+                    |
+                    v
+            Nutrition Label
+                    |
+                    v
+          Structured Analysis
+                    |
+                    v
+           Report Generator
+```
+
+You may adjust the exact execution order if the existing code requires it.
+
+Do not duplicate existing analysis logic.
+
+Do not make the new modules independently parse the manifest or privacy policy.
+
+Preserve the existing functionality for:
+- XML uploads.
+- APK uploads, if already implemented.
+- Privacy policy uploads.
+- Pasted privacy policy text.
+- Application purpose input.
+- Existing permission analysis.
+- Existing comparisons.
+- Existing Markdown and JSON reports.
+
+---
+
+# 5. STREAMLIT INTEGRATION
+
+After both backend modules and their tests work, integrate them into the existing Streamlit results interface.
+
+Create two clearly separated sections.
+
+## A. Privacy Risk Assessment
+
+Display:
+
+- Overall review-priority score.
+- Assessment status.
+- Three assessment dimensions.
+- Findings requiring attention.
+- Evidence behind each finding.
+- Recommendations.
+- Scoring methodology and limitations.
+
+Design requirements:
+- Clean assessment summary.
+- Professional score visualization.
+- Distinct severity indicators.
+- Expandable evidence details.
+- No unnecessary charts.
+- No fake metrics.
+
+Use a score indicator only when a valid score is available.
+
+If the assessment is insufficient, show that clearly instead of displaying a misleading score.
+
+## B. Privacy Nutrition Label
+
+Display:
+- Category-based privacy summary.
+- Clear status indicators.
+- Number of declared permissions in each category.
+- Unknown permissions separately.
+- Expandable exact permission identifiers.
+- Relevant policy coverage, when available.
+
+Add a working Consumer / Developer view switch.
+
+The Consumer view should prioritize understandable explanations.
+
+The Developer view should expose technical details.
+
+Do not create decorative or nonfunctional controls.
+
+---
+
+# 6. REPORT INTEGRATION
+
+Extend the existing report generator carefully.
+
+Include:
+
+- Risk assessment summary.
+- Overall score and its methodology, if available.
+- Individual assessment dimensions.
+- Evidence-linked findings.
+- Recommendations.
+- Privacy Nutrition Label.
+- Unknown permission details.
+- Assessment limitations.
+
+Preserve the existing Markdown and JSON report structure wherever possible.
+
+Do not remove previously generated information.
+
+Keep the reports consistent with what the Streamlit interface displays.
+
+PDF generation is NOT part of this task.
+
+---
+
+# 7. TESTING REQUIREMENTS
+
+Create meaningful tests for both modules.
+
+### Risk assessment tests
+
+Test:
+- Application with no permissions.
+- Application with recognized low-sensitivity permissions.
+- Application with sensitive permissions.
+- Unknown permissions.
+- Missing privacy policy.
+- Missing application purpose.
+- Policy coverage found.
+- Missing policy coverage.
+- Purpose alignment findings.
+- Insufficient evidence.
+- Deterministic output.
+- Score calculation and score bounds.
+- No duplicate counting.
+- Evidence is correctly linked to findings.
+
+### Nutrition label tests
+
+Test:
+- Every supported permission category.
+- Multiple permissions in one category.
+- Unknown permissions.
+- Empty manifest.
+- Duplicate permissions.
+- Permissions with no category mapping.
+- Correct consumer-friendly category descriptions.
+- Exact permission identifiers preserved.
+- Not-detected wording.
+- Policy coverage integration.
+
+### Integration tests
+
+Verify:
+- Existing XML workflow still works.
+- Existing APK workflow still works, if implemented.
+- Both new modules work with real existing analyzer outputs.
+- Existing Markdown report still works.
+- Existing JSON report still works.
+- Complete analysis workflow remains functional.
+
+Run the FULL existing test suite after implementation.
+
+Do not skip failing tests or report fabricated test results.
+
+---
+
+# 8. STRICT TECHNICAL RESTRICTIONS
+
+Continue using:
+
+- Python.
+- Streamlit.
+- Existing backend architecture.
+- Existing JSON knowledge base.
+- Existing test framework.
+
+Do NOT introduce:
+
+- Flask.
+- FastAPI.
+- React.
+- Node.js.
+- A separate backend server.
+- External APIs.
+- LLMs.
+- Machine learning.
+- Cloud scanning.
+- Unnecessary dependencies.
+
+Do not redesign the entire UI.
+
+Do not change the existing analyzer behavior unnecessarily.
+
+Do not move or rename existing modules without a compelling technical reason.
+
+Keep code readable for a second-year CSE student.
+
+---
+
+# 9. FINAL ACCEPTANCE CRITERIA
+
+Phase 1 is complete only when:
+
+1. Risk assessment is deterministic and explainable.
+2. Every finding has traceable supporting evidence.
+3. Unknown permissions are handled honestly.
+4. The Nutrition Label uses real manifest analysis results.
+5. Consumer and Developer views work.
+6. Both features appear correctly in Streamlit.
+7. Markdown and JSON reports include the new information.
+8. Existing functionality remains intact.
+9. All old and new tests pass.
+10. No unsupported security claims are generated.
+
+At completion, provide:
+
+- Files created.
+- Files modified.
+- Scoring methodology and configured weights.
+- Permission category mappings.
+- Test results.
+- Any limitations or unsupported cases.
+
+Do not start Phase 2.
+
+STOP after completing Phase 1.

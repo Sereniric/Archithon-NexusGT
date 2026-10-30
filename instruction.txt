@@ -1,0 +1,1378 @@
+We are developing PS01 – Explainable Application Privacy and Permission Analyzer.
+
+IMPORTANT: Follow the original problem statement's technology stack exactly.
+
+TECHNOLOGY STACK:
+- Python
+- Streamlit
+- defusedxml
+- JSON permission knowledge base
+- pandas
+- pytest
+
+Do NOT introduce Flask, FastAPI, React, HTML, CSS, JavaScript, Node.js or any alternative framework.
+
+ARCHITECTURE:
+We want separate frontend and backend folders, but this is only a file organization decision. It does NOT mean using separate frontend/backend frameworks or an HTTP API.
+
+- frontend/: Streamlit interface.
+- backend/: Python processing and analysis modules.
+
+## STEP 1: Project Foundation
+
+Create this structure:
+
+```text
+PS01/
+├── frontend/
+│   └── app.py
+├── backend/
+│   ├── analyzer/
+│   ├── knowledge_base/
+│   │   └── permissions.json
+│   ├── reporting/
+│   └── tests/
+├── sample_data/
+├── requirements.txt
+└── README.md
+```
+
+Create a requirements.txt with:
+- streamlit
+- defusedxml
+- pandas
+- pytest
+
+Create a curated JSON permission knowledge base containing at least 20 common Android permissions.
+
+Each entry must contain:
+- Exact permission identifier
+- Description
+- Capability
+- Privacy implications
+- Protection level, where verified
+- Official documentation URL
+- Category
+
+Ensure explanations are accurate and understandable. Mark uncertain or version-dependent information.
+
+Create a basic Streamlit frontend that confirms the application starts successfully. Do not implement the actual analysis yet.
+
+Add basic pytest validation for the JSON knowledge base:
+- Valid JSON
+- Required fields
+- Unique permission identifiers
+- Nonempty values
+
+STRICT RULES:
+1. Complete only Step 1.
+2. Keep all processing logic inside backend/.
+3. Keep Streamlit interface code inside frontend/.
+4. Do not create an API server.
+5. Do not introduce technologies outside the original stack.
+6. Do not implement future modules prematurely.
+
+Finally, explain created files and provide the exact command to run the application from the project root.
+
+
+# STEP 2 — Android Manifest Permission Extraction
+
+## Objective
+Implement AndroidManifest.xml upload and permission extraction using the existing PS01 architecture.
+
+## 1. What You MUST Implement
+
+**A. Backend — `backend/analyzer/manifest_parser.py`**
+- Use `defusedxml` to safely parse XML.
+- Extract permissions from:
+  - `uses-permission`
+  - `uses-permission-sdk-23`
+  - `uses-permission-sdk-m`
+- Extract the exact permission identifier from the `android:name` attribute.
+- Handle Android XML namespaces correctly.
+- Remove duplicate permissions while preserving their original order.
+- Handle malformed XML, empty files, and missing permission declarations gracefully.
+
+**B. Frontend — `frontend/app.py`**
+- Add a Streamlit file uploader for `AndroidManifest.xml`.
+- Accept XML files only.
+- Pass uploaded content to the backend parser.
+- Display extracted permissions in a readable table.
+- Display the total number of unique permissions found.
+- Show understandable error messages when parsing fails.
+
+**C. Tests — `backend/tests/`**
+Add tests covering:
+- Successful permission extraction.
+- Multiple permission declarations.
+- Duplicate permissions.
+- Manifest with no permissions.
+- Malformed XML.
+- Empty input.
+- Android namespace handling.
+
+## 2. What You MUST NOT Do
+
+- Do not change the existing technology stack.
+- Do not introduce Flask, FastAPI, React, JavaScript, Node.js, or an HTTP API.
+- Do not create a separate backend server.
+- Do not implement permission explanations or privacy risk analysis.
+- Do not implement privacy-policy analysis.
+- Do not implement purpose-based analysis or risk scoring.
+- Do not modify the existing permissions knowledge base.
+- Do not redesign the existing Streamlit interface.
+- Do not rename, delete, or restructure existing project files.
+- Do not overwrite working Step 1 functionality.
+- Do not add unnecessary dependencies.
+- Do not proceed to Step 3.
+
+## 3. Implementation Rules
+
+- Follow the existing folder structure and coding style.
+- Keep backend parsing logic separate from frontend code.
+- Keep functions small, readable, and beginner-friendly.
+- Reuse existing files wherever possible.
+- Do not assume that a declared permission proves the app actually accesses that resource.
+
+## 4. Validation
+
+After implementation:
+
+1. Run all existing and new tests.
+2. Fix any failing tests without removing existing tests.
+3. Verify that the Streamlit application starts successfully.
+4. Report the files created or modified.
+5. Report the test results.
+
+## STOP CONDITION
+
+Stop immediately after Step 2 is implemented and validated. Do not begin any Step 3 functionality.
+
+
+# STEP 3 — Permission Explanation Engine
+
+## Objective
+Implement a permission explanation engine that matches the permissions extracted in Step 2 against the existing JSON knowledge base.
+
+## 1. What You MUST Implement
+
+**A. Backend — `backend/analyzer/permission_analyzer.py`**
+
+- Read permission information from the existing `backend/knowledge_base/permissions.json`.
+- Match each extracted permission identifier against the knowledge base.
+- For every recognized permission, return:
+  - Exact Android permission identifier.
+  - Human-readable description.
+  - Capability or resource accessed.
+  - Potential privacy implications.
+  - Protection level, if available.
+  - Official documentation reference, if available.
+- For permissions not found in the knowledge base:
+  - Mark them clearly as `Unknown / Unsupported`.
+  - Preserve their exact permission identifier.
+  - Do not invent descriptions or privacy implications.
+- Keep the analysis deterministic. Do not use an LLM or external AI API.
+
+**B. Frontend — `frontend/app.py`**
+
+- Integrate the permission analyzer with the existing Step 2 manifest parser.
+- After a manifest is uploaded and parsed, automatically analyze its extracted permissions.
+- Display recognized permissions and their explanations clearly.
+- Display unknown permissions in a separate section.
+- Show total permissions, recognized permissions, and unknown permissions.
+- Keep the existing Streamlit interface simple and readable.
+
+**C. Tests — `backend/tests/`**
+
+Add tests for:
+- Correct matching of known permissions.
+- Correct explanation fields.
+- Unknown permission detection.
+- Preservation of exact permission identifiers.
+- Empty permission lists.
+- Mixed known and unknown permissions.
+- Missing optional knowledge-base fields, where applicable.
+
+## 2. What You MUST NOT Do
+
+- Do not change the existing technology stack.
+- Do not introduce Flask, FastAPI, React, JavaScript, Node.js, or an HTTP API.
+- Do not create a separate backend server.
+- Do not modify or remove the existing 28 knowledge-base entries.
+- Do not add permissions just to make tests pass.
+- Do not implement privacy-policy analysis.
+- Do not implement app-purpose comparison.
+- Do not implement risk scoring or malicious-app detection.
+- Do not claim that declared permissions prove actual app behaviour or data access.
+- Do not use an LLM or external AI API.
+- Do not redesign the interface.
+- Do not rename, delete, or restructure existing project files.
+- Do not break Step 1 or Step 2 functionality.
+- Do not proceed to Step 4.
+
+## 3. Implementation Rules
+
+- Reuse the existing manifest parser.
+- Keep permission analysis separate from XML parsing.
+- Use the JSON knowledge base as the single source of explanations.
+- Keep unknown permissions explicitly unknown.
+- Write readable, modular, beginner-friendly Python code.
+- Add dependencies only if absolutely necessary.
+
+## 4. Validation
+
+1. Run all existing and new tests.
+2. Fix failures without removing existing tests.
+3. Verify that the Streamlit application starts successfully.
+4. Test a manifest containing both known and unknown permissions.
+5. Report files created or modified and test results.
+
+## STOP CONDITION
+
+Implement and validate Step 3 only. Stop before starting Step 4.
+
+
+# STEP 4 — Privacy Policy Analysis
+
+## Objective
+Implement privacy-policy analysis for PS01. Allow users to provide privacy-policy text and identify relevant privacy statements with summaries supported by the original text.
+
+## 1. What You MUST Implement
+
+**A. Backend — `backend/analyzer/policy_analyzer.py`**
+
+- Accept privacy-policy text as input.
+- Identify relevant statements related to:
+  - Personal data collection.
+  - Device information.
+  - Location data.
+  - Camera, microphone, and contacts.
+  - Data storage and retention.
+  - Data sharing with third parties.
+  - Advertising and tracking.
+  - Data security and deletion.
+- Extract the original supporting sentences or excerpts.
+- Generate concise, understandable summaries based strictly on the extracted text.
+- Preserve the original excerpts so users can verify every summary.
+- Clearly indicate when a topic is not mentioned or cannot be determined from the supplied policy.
+- Handle empty or invalid input gracefully.
+- Keep the analysis modular and separate from the frontend.
+
+**B. Frontend — `frontend/app.py`**
+
+- Add an option to upload a `.txt` privacy-policy file.
+- Also allow users to paste privacy-policy text directly.
+- Pass the supplied text to the backend analyzer.
+- Display relevant topics and their summaries.
+- Display the original supporting excerpts alongside each summary.
+- Clearly show topics for which no relevant statement was found.
+- Integrate this functionality without breaking the existing manifest analysis.
+
+**C. Tests — `backend/tests/`**
+
+Add tests covering:
+- Privacy-policy text containing relevant statements.
+- Identification of multiple privacy topics.
+- Correct extraction of supporting excerpts.
+- Empty policy input.
+- Irrelevant policy text.
+- Topics not mentioned in the policy.
+- Summaries remaining grounded in the original text.
+- Malformed or unreadable input.
+
+## 2. What You MUST NOT Do
+
+- Do not change the existing technology stack.
+- Do not introduce Flask, FastAPI, React, JavaScript, Node.js, or an HTTP API.
+- Do not create a separate backend server.
+- Do not modify the existing manifest parser.
+- Do not modify the existing permission analyzer.
+- Do not modify or replace the existing permission knowledge base.
+- Do not implement permission-to-policy comparison yet.
+- Do not implement app-purpose comparison.
+- Do not implement risk scoring or malicious-app detection.
+- Do not invent privacy-policy statements or claim that an app follows a policy.
+- Do not present unsupported conclusions as facts.
+- Do not add an LLM or external AI API.
+- Do not redesign the existing Streamlit interface.
+- Do not rename, delete, or restructure existing project files.
+- Do not break Steps 1, 2, or 3.
+- Do not proceed to Step 5.
+
+## 3. Implementation Rules
+
+- Use Python and the existing Streamlit architecture.
+- Keep policy analysis separate from permission analysis.
+- Use the original policy text as the source of evidence.
+- Every generated summary must have supporting text from the supplied policy.
+- Prefer deterministic, explainable extraction and summarization.
+- Keep the code modular and beginner-friendly.
+- Add dependencies only if absolutely necessary.
+
+## 4. Validation
+
+1. Run all existing and new tests.
+2. Fix failures without removing existing tests.
+3. Test using a sample privacy policy.
+4. Verify that displayed summaries have supporting original excerpts.
+5. Verify that missing topics are explicitly identified.
+6. Confirm the Streamlit application starts successfully.
+7. Report all created or modified files and test results.
+
+## STOP CONDITION
+
+Implement and validate Step 4 only. Stop before starting Step 5.
+
+# STEP 5 — Permission and Privacy Policy Comparison
+
+## Objective
+Compare the permissions extracted from AndroidManifest.xml with the relevant statements identified in the supplied privacy policy. Identify potential transparency gaps using evidence from both inputs.
+
+## 1. What You MUST Implement
+
+**A. Backend — `backend/analyzer/purpose_analyzer.py`**
+
+- Create a comparison function that accepts:
+  - Extracted and analyzed Android permissions from Step 3.
+  - Privacy-policy analysis results from Step 4.
+- Map relevant privacy-policy topics to related Android permission categories.
+- For each recognized permission, determine whether the supplied policy contains a relevant supporting statement.
+- Classify each comparison result as:
+  - `Policy Coverage Found`
+  - `No Relevant Policy Statement Found`
+  - `Unknown / Cannot Determine`
+- Preserve the exact permission identifier.
+- Include the original policy excerpt when relevant.
+- Explain why a policy topic was considered relevant to a permission.
+- Treat missing policy statements as potential transparency gaps, not proof of wrongdoing.
+- Keep unknown permissions separate and do not invent mappings for them.
+
+**B. Frontend — `frontend/app.py`**
+
+- Integrate the comparison functionality with the existing manifest and privacy-policy analysis.
+- Run the comparison when both inputs have been provided and analyzed.
+- Display a readable comparison table.
+- Show permission identifiers, comparison status, relevant policy topics, and supporting excerpts.
+- Display a summary of permissions with policy coverage and permissions without relevant policy statements.
+- Show a clear message when either input is missing.
+- Preserve all existing Step 1–4 functionality.
+
+**C. Tests — `backend/tests/`**
+
+Add tests covering:
+- Permission with relevant policy coverage.
+- Permission without relevant policy coverage.
+- Multiple permissions mapped to different topics.
+- Unknown permissions.
+- Missing policy topics.
+- Empty permission input.
+- Empty policy input.
+- Correct preservation of supporting excerpts.
+- No false policy matches between unrelated topics.
+
+## 2. What You MUST NOT Do
+
+- Do not change the existing technology stack.
+- Do not introduce Flask, FastAPI, React, JavaScript, Node.js, or an HTTP API.
+- Do not create a separate backend server.
+- Do not modify the existing manifest parser.
+- Do not modify the existing permission analyzer.
+- Do not modify the existing policy analyzer.
+- Do not modify the existing 28-entry permission knowledge base.
+- Do not implement AI/LLM-based comparison or external API calls.
+- Do not label applications malicious or safe based on comparison results.
+- Do not claim that a missing policy statement proves a privacy violation.
+- Do not claim that declared permissions prove actual application behaviour.
+- Do not implement app-purpose comparison or risk scoring.
+- Do not redesign the Streamlit interface.
+- Do not rename, delete, or restructure existing files.
+- Do not break Steps 1–4.
+- Do not proceed to Step 6.
+
+## 3. Implementation Rules
+
+- Keep comparison logic in `purpose_analyzer.py`.
+- Reuse outputs from the existing Step 3 and Step 4 analyzers.
+- Use deterministic, explainable topic-to-permission mappings.
+- Do not use vague keyword matching that produces unrelated policy matches.
+- Preserve traceability to the original manifest permission and privacy-policy excerpt.
+- Keep code modular and beginner-friendly.
+- Add dependencies only if absolutely necessary.
+
+## 4. Validation
+
+1. Run all existing and new tests.
+2. Fix failures without removing existing tests.
+3. Test a manifest and policy with matching topics.
+4. Test a manifest and policy with missing coverage.
+5. Test unknown permissions and unrelated policy statements.
+6. Verify that every reported match has a supporting original excerpt.
+7. Verify that the Streamlit application starts successfully.
+8. Report files created or modified and test results.
+
+## STOP CONDITION
+
+Implement and validate Step 5 only. Stop before starting Step 6.
+
+# STEP 6 — APPLICATION PURPOSE ANALYSIS
+
+## Objective
+Implement application purpose analysis for PS01.
+
+The system should accept an optional application name and description of what the application is intended to do. It should compare the stated purpose against the permissions extracted from the AndroidManifest.xml and identify permissions that may require further review.
+
+Before making changes:
+1. Read `instruction.txt` and `PS01.md`.
+2. Inspect the existing project structure and implementation.
+3. Understand how Steps 2, 3, 4 and 5 currently work.
+4. Follow the existing project requirements and technology stack.
+
+## What MUST be implemented
+
+1. Accept an optional application name and purpose/description from the user through the existing Streamlit frontend.
+
+2. Analyze the stated purpose against the extracted permissions and their known capabilities.
+
+3. For each recognized permission, provide a transparent assessment using categories such as:
+   - Potentially relevant
+   - Needs review / unclear
+   - No clear relationship identified
+
+4. Every assessment must include:
+   - Exact Android permission identifier.
+   - Known permission capability.
+   - Assessment category.
+   - A concise explanation of why the permission may or may not relate to the stated application purpose.
+
+5. Unknown permissions must remain explicitly unknown. Do not invent capabilities or explanations.
+
+6. If the user does not provide an application purpose, skip this analysis gracefully and inform the user that purpose analysis was not performed.
+
+7. Integrate the results into the existing Streamlit interface without breaking previous features.
+
+8. Add appropriate tests covering relevant, unrelated, unclear, missing-purpose and unknown-permission cases.
+
+## What MUST NOT be implemented
+
+- Do not classify an application as malicious or safe.
+- Do not claim that a permission proves actual application behaviour.
+- Do not make unsupported assumptions about application functionality.
+- Do not use external APIs, LLMs or machine learning.
+- Do not introduce risk scores or arbitrary threat percentages.
+- Do not add Flask, FastAPI, JavaScript, Node.js or another frontend framework.
+- Do not change the existing technology stack.
+- Do not overwrite or break the Step 5 `purpose_analyzer.py` implementation. Inspect its existing role and preserve its functionality. Create a separate module if necessary.
+- Do not rewrite working Step 2–5 implementations unnecessarily.
+- Do not implement Step 7 yet.
+
+## Implementation rules
+
+- Use Python and the existing Streamlit frontend.
+- Use the existing permission knowledge base and analyzer outputs wherever possible.
+- Keep the analysis deterministic, explainable and evidence-based.
+- Follow the existing folder structure and coding style.
+- Keep the implementation beginner-friendly and maintainable.
+- Do not add unnecessary dependencies.
+- Preserve all existing features and interfaces.
+
+## Validation
+
+1. Add tests for the new functionality.
+2. Run the complete existing test suite, not just the new tests.
+3. Confirm that all previous tests still pass.
+4. Test the application with:
+   - A relevant permission and application purpose.
+   - A potentially unrelated permission.
+   - An unclear application purpose.
+   - An unknown permission.
+   - An empty application purpose.
+5. Verify that explanations do not claim actual app behaviour or malicious intent.
+6. Verify that the Streamlit application still starts successfully.
+
+## STOP CONDITION
+
+Complete Step 6 only.
+
+Do not start Step 7, do not add unrequested features, and do not restructure the project.
+
+When finished, report:
+- Files created or modified.
+- What was implemented.
+- Test results.
+- Whether all previous features still work.
+- Any remaining issues.
+
+Stop and wait for further instructions.
+
+# STEP 7 — EVIDENCE-LINKED REPORT GENERATION & FINAL INTEGRATION
+
+## Objective
+Complete PS01 by integrating all implemented analysis features and generating a downloadable, evidence-linked privacy analysis report.
+
+Before implementation:
+1. Read instruction.txt and PS01.md.
+2. Inspect the entire existing PS01 implementation.
+3. Review the existing reporting/report_generator.py, if present.
+4. Understand the outputs and interfaces of Steps 2–6.
+5. Follow the original problem statement and existing technology constraints.
+
+## What MUST be implemented
+
+### 1. Report Generation
+Implement or complete the report generator.
+
+The report must include:
+
+- Application name and stated purpose, if provided.
+- Extracted Android permissions.
+- Total permission count.
+- Recognized permissions and their explanations.
+- Unknown permissions, clearly identified.
+- Privacy policy analysis results.
+- Relevant supporting policy excerpts.
+- Missing policy topics.
+- Permission–policy comparison results.
+- Application purpose comparison results, if a purpose was provided.
+- Potential transparency gaps and permissions requiring further review.
+- Clear explanations and limitations of the analysis.
+
+### 2. Evidence Traceability
+Every finding must retain its source evidence.
+
+- Permission findings must include the exact Android permission identifier.
+- Policy findings must include the relevant original policy excerpts.
+- Purpose assessments must include the permission identifier and explanation.
+- Do not generate evidence that was not present in the supplied inputs.
+- Clearly distinguish declared permissions, policy statements and stated application purpose.
+
+### 3. Downloadable Report
+Integrate report generation into the existing Streamlit interface.
+
+- Provide a clear download option.
+- Use a readable, structured report format.
+- Prefer existing dependencies and project conventions.
+- Do not introduce unnecessary dependencies.
+- Ensure the report can be generated from the actual analysis results.
+
+### 4. Final Application Integration
+Ensure all implemented features work together in the correct sequence:
+
+1. AndroidManifest.xml upload and permission extraction.
+2. Permission explanation.
+3. Privacy policy input and analysis.
+4. Permission–policy comparison.
+5. Optional application purpose input and comparison.
+6. Final downloadable report.
+
+Handle missing optional inputs gracefully.
+
+### 5. Final User Experience
+- Keep the existing Streamlit interface.
+- Organize results clearly into understandable sections.
+- Display useful messages when inputs are missing or invalid.
+- Ensure unknown permissions and inconclusive findings are not presented as confirmed threats.
+
+## What MUST NOT be implemented
+
+- Do not add machine learning or external LLM APIs.
+- Do not classify applications as malicious or safe.
+- Do not claim to inspect actual runtime application behaviour.
+- Do not invent findings, evidence or policy statements.
+- Do not add arbitrary security scores or threat percentages.
+- Do not introduce Flask, FastAPI, JavaScript, Node.js or another frontend framework.
+- Do not change the prescribed technology stack.
+- Do not unnecessarily rewrite working Steps 1–6.
+- Do not add unrelated features.
+
+## Implementation rules
+
+- Use Python and Streamlit.
+- Reuse existing analyzer outputs instead of duplicating analysis logic.
+- Keep reporting logic separate from the frontend.
+- Preserve the existing folder structure.
+- Keep code readable and maintainable.
+- Preserve all existing tests and functionality.
+
+## Final Validation
+
+1. Run the complete PS01 test suite.
+2. Confirm all existing and new tests pass.
+3. Test the complete application workflow using:
+   - A valid Android manifest.
+   - A privacy policy.
+   - An application name and purpose.
+   - A mixture of recognized and unknown permissions.
+4. Test the workflow when optional inputs are missing.
+5. Generate and inspect an actual downloadable report.
+6. Verify that the report contains correct findings and supporting evidence.
+7. Verify that the Streamlit application starts successfully.
+8. Check for broken imports, missing files and unnecessary dependencies.
+
+## STOP CONDITION
+
+This is the final implementation step.
+
+Do not start another development step or introduce unrequested features.
+
+When finished, provide:
+- Complete list of created and modified files.
+- Final project structure.
+- Features successfully implemented.
+- Full test results.
+- Streamlit startup validation.
+- Confirmation that the downloadable report works.
+- Any remaining limitations or issues.
+
+Stop after completing the final validation.
+
+
+# Enhancement: APK Upload & Automatic AndroidManifest.xml Extraction
+
+We have completed all 7 implementation steps of PS01. Now implement one focused enhancement: allow users to upload an Android APK file so the application can automatically extract its AndroidManifest.xml and analyze its permissions.
+
+## 1. First inspect the existing project
+- Read `PS01.md` and the existing project instructions.
+- Inspect the current Streamlit UI, manifest parser, requirements, and tests.
+- Understand the existing workflow before modifying anything.
+- Reuse the current architecture and existing functions wherever possible.
+
+## 2. Required functionality
+
+The application must support TWO input methods:
+
+1. Upload an existing readable `AndroidManifest.xml` file.
+2. Upload an Android `.apk` file.
+
+When an APK is uploaded:
+- Read the APK as a ZIP-based package.
+- Locate `AndroidManifest.xml` inside it.
+- Decode Android's compiled binary XML manifest into readable XML using a suitable maintained Python library, preferably Androguard, after checking compatibility with the project's Python version.
+- Extract permissions using the existing manifest parsing logic.
+- Pass the extracted permissions into the existing analysis pipeline.
+
+The user should not need to manually extract or convert the manifest.
+
+## 3. Preserve the existing analysis pipeline
+
+Do NOT rewrite or duplicate these existing modules:
+
+- `permission_analyzer.py`
+- `policy_analyzer.py`
+- `purpose_analyzer.py`
+- `app_purpose_analyzer.py`
+- `report_generator.py`
+
+Both XML and APK inputs must eventually use the same existing analysis pipeline.
+
+Keep the existing XML upload functionality working exactly as before.
+
+## 4. Security and validation
+
+APK files are untrusted input.
+
+Implement appropriate safeguards:
+- Set a reasonable maximum upload size.
+- Validate that the uploaded file is a valid APK/ZIP package.
+- Check that `AndroidManifest.xml` exists.
+- Read only the manifest entry; do not extract the entire APK to disk.
+- Protect against oversized decompressed manifest data and malformed archives.
+- Handle invalid, corrupt, unsupported, or password-protected files gracefully.
+- Never install or execute an uploaded APK.
+- Do not run shell commands or external APK tools.
+
+Use the existing `defusedxml`-based parsing approach wherever applicable after decoding.
+
+## 5. User interface
+
+Update the existing Streamlit interface to make the input method clear.
+
+Users should be able to choose between:
+- AndroidManifest.xml upload
+- APK upload
+
+Display useful feedback:
+- File successfully uploaded.
+- Manifest successfully extracted.
+- Number of permissions found.
+- Clear error messages if extraction fails.
+
+If package name or version information is easily available from the decoder, displaying it is optional. Do not spend time building unrelated features.
+
+## 6. Dependencies
+
+- Inspect the current `requirements.txt` and Python environment first.
+- Add only the dependency actually needed for APK manifest decoding.
+- Use a compatible, pinned dependency version where practical.
+- Do not unnecessarily change existing dependencies.
+
+## 7. Tests
+
+Add tests for:
+- Valid APK containing a binary AndroidManifest.xml.
+- Successful permission extraction from an APK.
+- APK containing both known and unknown permissions.
+- Invalid APK file.
+- APK with no AndroidManifest.xml.
+- Corrupt APK archive.
+- Oversized input handling.
+- Existing readable XML upload still working.
+- Existing analysis and report generation still working with APK-derived permissions.
+
+Use a genuine small APK fixture with a binary manifest or a meaningful decoder integration test. Do not fake successful APK decoding by simply mocking the entire extraction process.
+
+Run the complete existing test suite after implementation.
+
+## 8. Strictly out of scope
+
+Do NOT implement:
+- Play Store link downloading.
+- Automatic scanning of apps installed on a phone.
+- Android companion applications.
+- APK installation or execution.
+- Cloud scanning or external APIs.
+- Machine learning or LLM-based analysis.
+- Flask, FastAPI, React, JavaScript, or Node.js.
+- A separate backend server.
+- Unrelated UI redesigns or new analysis features.
+
+## 9. Final requirements
+
+- Preserve all seven completed implementation steps.
+- Keep the current folder structure unless a small change is genuinely necessary.
+- Keep the code beginner-readable and consistent with the existing project.
+- Do not remove existing functionality.
+- Do not silently skip failing tests.
+- If the chosen APK decoder has compatibility or implementation limitations, explain them instead of pretending the feature works.
+
+When finished, report:
+1. Files created or modified.
+2. How APK extraction works.
+3. Any new dependency.
+4. Number of tests passed and failed.
+5. Any remaining limitations.
+
+STOP after completing this enhancement. Do not start unrelated work.
+
+# Task: Professional UI Redesign for PS01
+
+We have completed the core PS01 functionality and are adding APK upload support. Now improve the visual design and user experience of the existing Streamlit application.
+
+The goal is to transform the current simple interface into a polished, professional-looking application that could be deployed publicly after the hackathon.
+
+## 1. Understand before modifying
+- Inspect the complete existing Streamlit UI and project structure.
+- Read PS01.md and understand the application's purpose.
+- Identify all existing input methods, analysis sections, outputs, and report downloads.
+- Preserve all existing functionality.
+
+## 2. Design direction
+
+Create a modern SaaS-style cybersecurity and privacy analysis dashboard.
+
+Visual inspiration:
+- Professional security dashboards.
+- Modern SaaS applications.
+- Clean analytical interfaces.
+
+Design characteristics:
+- Minimal and professional.
+- Consistent spacing and alignment.
+- Strong visual hierarchy.
+- Modern typography.
+- Consistent color palette.
+- Subtle borders, shadows, and rounded cards.
+- Responsive layout for desktop and mobile screens.
+
+Suggested palette:
+- Deep navy / dark blue for primary elements.
+- White or very light grey backgrounds.
+- Blue accents for primary actions.
+- Amber for warnings and review-required findings.
+- Red only for meaningful risk indicators.
+- Green for successful operations.
+
+Avoid excessive gradients, unnecessary animations, and distracting decorations.
+
+## 3. Application layout
+
+Create a professional application layout containing:
+
+### A. Sidebar
+- Application name and simple branding.
+- Navigation between the available sections.
+- Short application description.
+- About / limitations section.
+
+### B. Main dashboard
+- Professional header with application name.
+- Short explanation of what the analyzer does.
+- Clear primary action to start an analysis.
+- A clean overview of the analysis workflow.
+
+### C. Analysis input section
+Organize inputs into a clean interface:
+- AndroidManifest.xml upload.
+- APK upload.
+- Privacy policy upload or text input.
+- Application name and purpose input.
+
+Make the upload experience intuitive. Clearly explain what files users can upload and what happens after uploading.
+
+### D. Analysis results
+
+Organize results into separate, clearly labeled sections:
+
+1. Analysis overview.
+2. Extracted permissions.
+3. Recognized permissions.
+4. Unknown permissions.
+5. Privacy policy findings.
+6. Permission-policy comparison.
+7. Application purpose comparison.
+8. Transparency gaps.
+9. Limitations and important disclaimers.
+
+Use cards, tables, expandable sections, and visual summaries where appropriate.
+
+### E. Summary metrics
+
+Display useful metrics such as:
+- Total permissions detected.
+- Recognized permissions.
+- Unknown permissions.
+- Policy topics identified.
+- Potential transparency gaps.
+
+These must be calculated from actual analysis results. Never use hardcoded example values.
+
+### F. Reports
+
+Make Markdown and JSON report downloads easy to find.
+
+Use clear download buttons and explain what each report contains.
+
+## 4. User experience improvements
+
+- Provide clear success, warning, and error messages.
+- Show a loading indicator during analysis.
+- Avoid displaying raw Python dictionaries or unformatted technical output.
+- Use readable labels and explanations.
+- Keep detailed evidence accessible through expandable sections.
+- Make unknown permissions visually distinguishable.
+- Display exact permission identifiers wherever relevant.
+- Preserve supporting privacy-policy excerpts and evidence traceability.
+- Add helpful empty states before analysis is performed.
+
+## 5. Deployment readiness
+
+While redesigning, check the application for basic deployment readiness:
+
+- Remove local-machine-specific file paths.
+- Ensure uploaded files are handled safely.
+- Avoid exposing internal exceptions or sensitive information to users.
+- Keep configuration separate from application logic where necessary.
+- Ensure the application starts correctly using Streamlit.
+- Check that dependencies are documented in requirements.txt.
+- Do not expose secrets or API keys.
+- Ensure the interface works at different screen sizes.
+
+Do not claim the application is production-ready merely because the UI looks professional. Report any remaining deployment, security, or operational limitations.
+
+## 6. Technical restrictions
+
+- Continue using Python and Streamlit.
+- Do not introduce React, Flask, FastAPI, Node.js, or a separate backend server.
+- Avoid unnecessary JavaScript.
+- Do not rewrite the existing analyzers.
+- Do not modify analysis logic just to change the appearance.
+- Do not remove any existing feature.
+- Keep the code understandable for a beginner team.
+- Reuse existing functions and data structures.
+
+## 7. Final verification
+
+After implementation:
+- Run the complete existing test suite.
+- Verify all input methods still work.
+- Verify the complete analysis workflow.
+- Verify Markdown and JSON report downloads.
+- Check for broken navigation and UI errors.
+- Summarize all files changed and any remaining limitations.
+
+STOP after completing the UI redesign. Do not add unrelated features.
+
+# TASK: COMPLETE PROFESSIONAL UI REDESIGN — PS01 APPLICATION PRIVACY ANALYZER
+
+You are redesigning an existing functional Python Streamlit application.
+
+The current UI looks like a plain Python demo. I do NOT want minor styling improvements, a few cards, or simply changing colors.
+
+I want a substantial visual redesign that makes this application look like a professionally developed cybersecurity SaaS product.
+
+Think of a combination of:
+- Modern cybersecurity analysis platform.
+- Premium SaaS dashboard.
+- Professional privacy/compliance monitoring software.
+
+The final result must look intentional, polished, consistent, and suitable for public deployment.
+
+IMPORTANT: Do not start coding before inspecting the existing application.
+
+---
+
+# 1. VISUAL DESIGN SYSTEM
+
+Follow this design system consistently across the entire application.
+
+### Theme: Premium Light SaaS
+
+Main background: #F5F7FB  
+Card background: #FFFFFF  
+Primary text: #172033  
+Secondary text: #687386  
+Primary blue: #315CF6  
+Dark navy: #111B32  
+Border: #E6EAF0  
+Success: #159B72  
+Warning: #E6A23C  
+Danger: #DC4C4C  
+
+### Typography
+- Use a clean modern sans-serif font.
+- Use clear differences between page titles, section headings, labels and descriptions.
+- Avoid oversized headings.
+- Maintain consistent font weights.
+- Use readable line heights.
+
+### Components
+Every component must follow the same visual language:
+- Rounded cards with approximately 12px corner radius.
+- Thin, subtle borders.
+- Very subtle shadows.
+- Consistent padding.
+- Proper alignment.
+- Consistent spacing.
+- Clean buttons with hover states.
+- Professional input fields.
+- Carefully designed status badges.
+
+Do not use random colors, excessive gradients, emoji icons, or unnecessary decorative elements.
+
+---
+
+# 2. APPLICATION SHELL
+
+Create a consistent application shell.
+
+### LEFT SIDEBAR
+
+Create a dark navy sidebar.
+
+At the top:
+- A simple shield/privacy icon.
+- Application name: PRIVACYLENS
+- Subtitle: Android Privacy Analyzer
+
+Navigation:
+- Overview
+- New Analysis
+- Analysis Results
+- Reports
+- About
+
+At the bottom:
+- Version information.
+- Short privacy-focused tagline.
+
+Use professional icons where available.
+
+Navigation must actually work. Do not create decorative navigation items that do nothing.
+
+### MAIN CONTENT AREA
+
+Use a light grey background.
+
+The main content should have:
+- Consistent left and right margins.
+- A clear content width.
+- Proper vertical spacing.
+- A professional page header.
+- No unnecessary empty space.
+
+Do not place every section directly below another in one endless page.
+
+Use proper navigation or tabs to organize content.
+
+---
+
+# 3. OVERVIEW PAGE
+
+This should be the application's landing dashboard.
+
+### Header
+
+Title:
+"Application Privacy Overview"
+
+Subtitle:
+"Understand what an Android application can access and how its privacy policy describes data handling."
+
+Include a prominent primary button:
+"Start New Analysis"
+
+### Overview cards
+
+Create four professional metric cards:
+
+1. Total Analyses
+2. Permissions Analyzed
+3. Unknown Permissions
+4. Policy Transparency Gaps
+
+Important:
+- Use actual session/application data.
+- Never hardcode fake metrics.
+- If no analysis has been performed, display a proper empty state with zero values or a helpful message.
+
+### Getting Started section
+
+Create a clean horizontal or vertical workflow:
+
+01 — Upload Android APK or Manifest  
+02 — Provide Privacy Policy  
+03 — Analyze Permissions  
+04 — Review Findings and Download Report
+
+Use subtle numbered indicators and connecting lines.
+
+### Recent Analysis section
+
+If analysis history is actually available, display recent analyses.
+
+If it is not implemented, DO NOT invent history or create fake records. Instead display a polished empty state directing users to start their first analysis.
+
+---
+
+# 4. NEW ANALYSIS PAGE
+
+This page is extremely important. Make it look like a proper professional analysis workspace.
+
+### Page heading
+
+"New Privacy Analysis"
+
+Description:
+"Upload an Android application manifest or APK to identify declared permissions and evaluate privacy transparency."
+
+### SECTION A — APPLICATION DETAILS
+
+Create a clean form card.
+
+Fields:
+- Application Name (optional)
+- Application Purpose (optional)
+
+Use proper labels, helper text and input styling.
+
+### SECTION B — UPLOAD ANDROID APPLICATION
+
+Create a visually prominent upload card.
+
+Allow the existing supported input methods:
+
+- Android APK
+- AndroidManifest.xml
+
+The two upload methods should be easy to distinguish.
+
+Use tabs or a segmented selection for APK and XML.
+
+For APK:
+- Clearly display that the application automatically extracts AndroidManifest.xml.
+- Show uploaded filename and file size.
+- Show extraction status.
+
+For XML:
+- Clearly explain that a readable AndroidManifest.xml is required.
+- Show uploaded filename.
+
+The upload section should have:
+- Large, clean drop area.
+- Upload icon.
+- Clear instructions.
+- Supported file format.
+- Professional upload status.
+
+Do not use fake drag-and-drop controls. Use actual Streamlit upload functionality and style it properly.
+
+### SECTION C — PRIVACY POLICY
+
+Create a separate card.
+
+Allow:
+- Uploading a TXT privacy policy.
+- Pasting privacy policy text.
+
+Make the two options easy to switch between.
+
+### SECTION D — START ANALYSIS
+
+At the bottom, create a visually prominent primary action button:
+
+"Analyze Application"
+
+The button should be disabled or appropriately guarded when required inputs are missing.
+
+Show a professional progress indicator while analysis is running.
+
+After completion, navigate to or clearly display the results.
+
+Do not modify the existing analysis logic.
+
+---
+
+# 5. ANALYSIS RESULTS PAGE
+
+This page should look like a real security analysis report.
+
+Do NOT display raw Python dictionaries or unformatted output.
+
+### A. RESULT HEADER
+
+Display:
+- Application name, if provided.
+- Uploaded filename.
+- Analysis completion status.
+- Number of permissions detected.
+
+Add an option to start another analysis.
+
+### B. ANALYSIS SUMMARY
+
+Create four metric cards:
+
+- Total Permissions
+- Recognized Permissions
+- Unknown Permissions
+- Transparency Gaps
+
+Each card should contain:
+- Large numeric value.
+- Small descriptive label.
+- Subtle visual indicator.
+
+Use actual analysis results.
+
+### C. PERMISSION ANALYSIS
+
+Create a professional table.
+
+Columns:
+- Permission
+- Capability
+- Protection Level
+- Privacy Implication
+- Status
+
+Requirements:
+- Long permission identifiers must remain readable.
+- Use monospace formatting for Android permission identifiers.
+- Use badges for known/unknown status.
+- Provide expandable details for lengthy explanations.
+- Preserve the exact permission identifiers.
+- Clearly distinguish recognized and unknown permissions.
+
+Unknown permissions should have a warning-style appearance, but must never be automatically classified as malicious.
+
+### D. PRIVACY POLICY ANALYSIS
+
+Display each analyzed privacy topic as a clean individual row or card.
+
+Show:
+- Topic name.
+- Whether relevant policy evidence was found.
+- Exact supporting excerpt.
+- A clear status indicator.
+
+Make supporting excerpts expandable so the page does not become excessively long.
+
+### E. PERMISSION-POLICY COMPARISON
+
+Display comparison findings in a clean structured table.
+
+Use visually distinct statuses:
+- Policy Coverage Found.
+- No Relevant Policy Statement Found.
+- Unknown / Cannot Determine.
+
+Show supporting policy evidence wherever available.
+
+### F. APPLICATION PURPOSE COMPARISON
+
+Display:
+- Permission.
+- Stated application purpose.
+- Relationship assessment.
+- Explanation.
+
+Use clear visual indicators for:
+- Potentially relevant.
+- Needs review / unclear.
+- No clear relationship identified.
+
+Never claim that an application is malicious based only on these comparisons.
+
+### G. TRANSPARENCY GAPS
+
+Create a dedicated section for missing policy coverage and other identified transparency gaps.
+
+Use amber warning styling.
+
+Explain why each item needs review.
+
+### H. LIMITATIONS
+
+Create a visually separate information section explaining that:
+- The application analyzes declared permissions and supplied privacy policy text.
+- It does not inspect actual runtime behavior.
+- Its findings are indicators for review, not proof of malicious behavior.
+
+---
+
+# 6. REPORTS PAGE
+
+Create a dedicated professional reports section.
+
+Display:
+- Report overview.
+- Analysis metadata.
+- Markdown report download.
+- JSON report download.
+
+Each download should have:
+- A clear label.
+- A short explanation.
+- A proper download button.
+
+Do not generate fake report content.
+
+Use the existing report generator and preserve its evidence-linked output.
+
+---
+
+# 7. ABOUT PAGE
+
+Create a professional About page.
+
+Explain:
+- What PrivacyLens does.
+- Why Android permissions matter.
+- How the analysis works.
+- What the application can and cannot determine.
+
+Include a simple explanation of the four-stage workflow:
+1. Manifest extraction.
+2. Permission analysis.
+3. Privacy policy analysis.
+4. Evidence-linked reporting.
+
+Keep it concise and professional.
+
+---
+
+# 8. STREAMLIT IMPLEMENTATION REQUIREMENTS
+
+This is NOT permission to rewrite the application.
+
+Use:
+- Python.
+- Streamlit.
+- Existing Python backend modules.
+- Custom CSS injected through Streamlit where appropriate.
+
+You may reorganize frontend code into smaller Python modules if necessary, but preserve the current backend interfaces.
+
+You may use:
+- Streamlit columns.
+- Containers.
+- Tabs.
+- Expanders.
+- Forms.
+- Session state.
+- Custom CSS.
+- Suitable icon support.
+
+You must not introduce:
+- React.
+- Next.js.
+- Flask.
+- FastAPI.
+- Node.js.
+- A separate frontend server.
+- Unnecessary JavaScript.
+- Fake frontend interactions.
+
+Avoid installing large UI libraries just to create basic cards.
+
+IMPORTANT:
+Streamlit reruns the application when widgets change. Preserve uploaded files, analysis results, and navigation state correctly using session state. Avoid losing analysis results when changing pages.
+
+---
+
+# 9. STRICT DESIGN RULES
+
+These rules are mandatory:
+
+1. Do not simply add CSS to the existing plain interface and call it redesigned.
+2. Do not put the entire application into one long page.
+3. Do not display raw dictionaries, JSON, or Python objects as the primary UI.
+4. Do not use excessive emojis.
+5. Do not use random colors.
+6. Do not use giant empty cards.
+7. Do not create fake charts or fake analysis metrics.
+8. Do not create nonfunctional navigation.
+9. Do not remove existing functionality.
+10. Do not change backend analysis logic.
+11. Do not change the meaning of existing findings.
+12. Do not hardcode analysis data.
+13. Do not add unrelated features.
+
+The application must remain fully functional.
+
+---
+
+# 10. FINAL QUALITY CHECK
+
+Before declaring completion:
+
+- Run the entire existing test suite.
+- Test XML upload.
+- Test APK upload if implemented.
+- Test privacy policy upload and pasted text.
+- Test the complete analysis workflow.
+- Test all navigation sections.
+- Test report downloads.
+- Test the empty state before analysis.
+- Test the results page with known and unknown permissions.
+- Check that long text and permission identifiers do not break the layout.
+- Check that Streamlit session state preserves results.
+- Check that the UI is usable on different screen widths.
+
+If possible, launch the application and inspect the actual rendered UI rather than assuming that the code looks good.
+
+Fix visual problems before stopping.
+
+### FINAL ACCEPTANCE CRITERIA
+
+I will consider this task complete only when:
+
+- The application looks substantially different from the original plain Streamlit interface.
+- It resembles a polished privacy/security SaaS dashboard.
+- The sidebar, dashboard, upload page, results page and reports page share one consistent design system.
+- All existing analysis functionality still works.
+- No fake data or fake interactions have been introduced.
+- All tests pass.
+
+At the end, provide a concise summary of files modified, tests executed, and any remaining limitations.
+
+STOP after completing this redesign.
