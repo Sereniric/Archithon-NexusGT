@@ -1,121 +1,198 @@
 <div align="center">
 
-# Hackathon Problem-Solving Workspace
+# 🔐 PrivacyLens
 
-**One repository. Ten problem statements. One focused solution at a time.**
+### See what Android apps can access. Understand what privacy policies disclose.
 
-A clean starting point for choosing a challenge, building against its official specification, and preparing an evaluable submission.
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Android](https://img.shields.io/badge/Android-Manifest_Analyzer-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com/)
+[![Privacy](https://img.shields.io/badge/Privacy-Evidence_Led-315CF6?style=for-the-badge&logo=databricks&logoColor=white)](https://github.com/)
+
+**PrivacyLens is an explainable privacy analysis workspace for Android manifests and privacy policies.**
+It extracts declared permissions, explains known capabilities, highlights unknown declarations, compares policy coverage, and creates traceable reports.
 
 </div>
 
 ---
 
-## Welcome
+## ✨ What PrivacyLens does
 
-This repository contains ten independent hackathon problem statements in the top-level folders **`PS01` through `PS10`**. Choose one problem statement (PS) to work on. The shared agent instructions are designed to help an AI coding agent understand the selected challenge, respect its evaluation contract, and keep the working checkout focused.
+<table>
+<tr>
+<td width="50%">
 
-> **Important:** Once you confirm your choice and the disclosed cleanup scope, the agent is instructed to delete the other PS folders from the current checkout. The selected PS folder and files outside the other top-level `PS##` folders are preserved. Make sure you are comfortable with this before confirming.
+### 📱 Analyze Android applications
 
-## Problem statements
+- Upload a readable `AndroidManifest.xml`
+- Upload and inspect an APK safely
+- Extract unique permission declarations
+- Preserve exact Android permission identifiers
 
-| ID | Problem title | Specification |
-|---|---|---|
-| `PS01` | Explainable Application Privacy and Permission Analyzer | See `PS01.md` |
-| `PS02` | Automated Invoice and Payment Reconciliation Dashboard | See `PS02.md` |
-| `PS03` | Targeted Model-Repair and Regression-Evaluation Pipeline | See `PS03.md` |
-| `PS04` | Offline-First Multimodal AI Assistant for Healthcare | See `PS04.md` |
-| `PS05` | Automated Multi-Agent Codebase Vulnerability and Dependency Graph Auditor | See `PS05.md` |
-| `PS06` | FAIRSHIFT: Auditable Allocation and Decision-Support System | See `PS06.md` |
-| `PS07` | REPROTRACE: Pipeline Observability and Reproducibility Tool | See `PS07.md` |
-| `PS08` | AGENTGATE: Security Gateway for AI Actions and Information-Flow Control | See `PS08.md` |
-| `PS09` | FORGETGRAPH: Dependency-Aware Deletion Orchestrator for ML Pipelines | See `PS09.md` |
-| `PS10` | Open Innovation: Hardware / Embedded Systems / IoT Solution | See `PS10.md` |
+</td>
+<td width="50%">
 
-Replace the placeholder titles and specification links above with the official details in the problem folders. The authoritative statement inside the selected folder defines the challenge requirements.
+### 🧠 Explain privacy implications
 
-## Getting started
+- Match permissions against a curated knowledge base
+- Explain capabilities and protection levels
+- Flag unknown permissions without guessing
+- Keep declarations separate from runtime behavior
 
-1. Open the repository and review the available folders and problem statement titles.
-2. Tell your coding agent which PS you want to work on. The agent should list the available PS folders and their exact paths before asking you to choose.
-3. Review the agent's confirmation request carefully. It must identify the selected folder and enumerate every other `PS##` folder that will be removed from this checkout.
-4. Confirm only if the selected PS and deletion scope are correct. Before that confirmation, the agent must not delete, move, or clean any PS folder.
-5. After confirmation and cleanup, read the selected problem's specification and follow its setup, build, test, output, and submission requirements.
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-If you do not want the other PS folders removed, decline the cleanup and ask to continue with the selected PS while retaining them. The agent should not proceed with destructive cleanup without your explicit consent.
+### 📄 Review privacy policies
 
-## How selection and cleanup work
+- Upload TXT policy documents
+- Paste policy text directly
+- Identify relevant privacy topics
+- Preserve supporting excerpts as evidence
+
+</td>
+<td width="50%">
+
+### 📊 Generate transparent reports
+
+- Compare permissions with policy coverage
+- Compare permissions with stated application purpose
+- Export readable Markdown reports
+- Export structured JSON reports
+
+</td>
+</tr>
+</table>
+
+> PrivacyLens is an evidence-led review tool. Declared permissions do **not** prove that an application collected, accessed, stored, or transmitted data. Missing policy statements are transparency gaps, not proof of wrongdoing.
+
+---
+
+## 🧭 Analysis workflow
 
 ```mermaid
-flowchart TD
-    A[Inspect PS01–PS10 without changing files] --> B[Show IDs, titles, and paths]
-    B --> C[Ask user to choose one PS]
-    C --> D[Show exact other PS folders to be removed]
-    D --> E{User confirms selection and cleanup?}
-    E -- No --> F[Delete nothing; clarify whether to proceed without cleanup]
-    E -- Yes --> G[Keep selected PS and shared repository files]
-    G --> H[Remove only confirmed unselected PS folders]
-    H --> I[Verify repository contents]
-    I --> J[Build and validate against selected PS specification]
+flowchart LR
+    A[AndroidManifest.xml or APK] --> B[Manifest Extraction]
+    B --> C[Permission Knowledge Base]
+    C --> D[Permission Explanations]
+    E[Privacy Policy] --> F[Topic and Excerpt Analysis]
+    D --> G[Permission-Policy Comparison]
+    F --> G
+    H[Application Purpose] --> I[Purpose Relationship Review]
+    D --> I
+    G --> J[PrivacyLens Results]
+    I --> J
+    J --> K[Markdown and JSON Reports]
 ```
 
-The cleanup boundary is limited to the explicitly confirmed, unselected top-level problem folders. Shared code, repository metadata, this README, the top-level `AGENTS.md`, logs, and configuration must remain untouched. Do not use broad wildcard deletion. If you later want to switch to a PS folder that was removed, restore or re-clone it first.
+---
 
-## Repository guide
+## 🚀 Quick start
+
+### 1. Clone and enter the repository
+
+```bash
+git clone <repository-url>
+cd Archithon
+```
+
+### 2. Create a virtual environment
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+On Windows:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+### 3. Install PrivacyLens
+
+```bash
+python -m pip install -r PS01/requirements.txt
+```
+
+### 4. Launch the dashboard
+
+```bash
+streamlit run PS01/frontend/app.py
+```
+
+Open the local URL shown by Streamlit, normally `http://localhost:8501`.
+
+---
+
+## 🖥️ PrivacyLens interface
+
+| Page | Purpose |
+|---|---|
+| **Overview** | Session metrics, workflow, and analysis status |
+| **Analysis inputs** | Manifest/APK upload, policy input, and stated purpose |
+| **Permissions** | Recognized and unknown permission explanations |
+| **Privacy policy** | Deterministic topic findings and source excerpts |
+| **Transparency comparison** | Policy coverage and missing-statement review |
+| **Purpose review** | Evidence-limited relationship assessment |
+| **Reports** | Markdown and JSON downloads |
+
+---
+
+## 📂 Project structure
 
 ```text
-.
-├── AGENTS-generalized.md
-├── agent_trace_instructions_generalized.md
-├── README.md
+Archithon/
 ├── PS01/
-├── PS02/
-├── PS03/
-├── PS04/
-├── PS05/
-├── PS06/
-├── PS07/
-├── PS08/
-├── PS09/
-└── PS10/
+│   ├── frontend/
+│   │   └── app.py                 # Streamlit PrivacyLens interface
+│   ├── backend/
+│   │   ├── analyzer/              # Manifest, policy, purpose, and APK engines
+│   │   ├── knowledge_base/        # Curated Android permission knowledge
+│   │   ├── reporting/             # Markdown and JSON report generation
+│   │   └── tests/                 # Automated test suite
+│   ├── sample_data/
+│   ├── requirements.txt
+│   └── README.md
+├── PS01.md                        # Original problem statement
+├── Advanced.txt                   # PrivacyLens Phase 1 roadmap
+└── README.md
 ```
 
-Each `PS##/` folder should contain that challenge's participant-facing specification and any allowed starter files or datasets. The actual contents and filenames may differ by problem. Do not assume one PS's input format, output schema, scoring rules, or implementation approach applies to another.
+---
 
-### Agent guidance files
+## 🧪 Run the tests
 
-- **`AGENTS-generalized.md`** — primary coding-agent guidance: PS selection and confirmed cleanup, session logging, challenge contract, evaluation safeguards, and cross-platform compatibility. If your coding tool expects a file named `AGENTS.md`, rename or copy this file to that name at the repository root before starting.
-- **`agent_trace_instructions_generalized.md`** — guidance for collecting, reviewing, redacting, and packaging agent traces. Follow the selected PS's submission instructions if they specify a different trace artifact or archive layout.
+```bash
+python -m pytest PS01/backend/tests -q
+```
 
-## Build, test, and submit
+Tests cover manifest extraction, APK decoding and validation, permission matching, policy analysis, purpose comparison, report generation, and analysis safety boundaries.
 
-There is no single build command or output format shared across all ten problems. After choosing a PS, read its official specification and any README or setup notes in that folder. Use the required language, dependencies, input paths, output schema, runtime interface, and submission artifact exactly as stated there.
+---
 
-Before submitting, verify that:
+## 🛡️ Privacy and evidence boundaries
 
-- The solution uses only allowed inputs and resources.
-- The required output files exist and match the exact specified schema and coverage.
-- The prescribed run and evaluation steps complete successfully.
-- The package contains every required artifact and excludes credentials, secrets, and prohibited files.
-- Any required agent trace or usage report is included in the requested format.
+PrivacyLens is intentionally conservative:
 
-Use the submission URL stated by the selected challenge. Do not guess a URL or substitute a general contest page for an official submission link.
+- Unknown permissions are preserved exactly and never assigned speculative explanations.
+- Policy excerpts come from user-supplied policy text.
+- Purpose relationships are review questions, not behavioral conclusions.
+- Missing disclosures indicate review priorities, not wrongdoing.
+- The application does not execute APK code, install apps, scan devices, or observe runtime behavior.
 
-## Safety and working practices
-
-- **Read the selected specification first.** It is authoritative for problem-specific requirements.
-- **Keep secrets out of source control.** Use environment variables or ignored local configuration when the challenge requires credentials.
-- **Protect private data.** Review traces and outputs for API keys, tokens, passwords, cookies, private keys, and sensitive personal information before sharing.
-- **Keep changes scoped.** Work on the selected PS and shared files only; do not bring assumptions or evaluation labels over from another problem.
-- **Retain trace integrity.** Preserve original structured session logs where practical. Redact only sensitive content, and do not include credentials or unrelated application data.
-
-## Contributing or adding problem details
-
-Before using this README as a public project page, replace the placeholder problem titles with the official titles and link each row to the correct participant-facing specification. Add only verified setup and submission information. Keep challenge-specific facts in the relevant `PS##/` folder rather than duplicating them as assumptions in shared instructions.
+For operational and security details, see the [PS01 documentation](PS01/README.md).
 
 ---
 
 <div align="center">
 
-**Choose carefully. Confirm the cleanup scope. Build to the selected specification.**
+### PrivacyLens
+
+**Make permission declarations understandable. Keep every conclusion evidence-led.**
+
+[Launch PrivacyLens](PS01/README.md#quick-start) · [View PS01 Specification](PS01.md) · [Review Phase 1 Roadmap](Advanced.txt)
 
 </div>
